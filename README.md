@@ -331,7 +331,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **GitHub**: https://github.com/alimoradi296/pyconflict
 - **PyPI**: https://pypi.org/project/pyconflict/
 - **Documentation**: https://pyconflict.readthedocs.io
-- **Issues**: https://github.com/pyconflict/pyconflict/issues
+- **Issues**: https://github.com/alimoradi/pyconflict/issues
 
 ## Credits
 
