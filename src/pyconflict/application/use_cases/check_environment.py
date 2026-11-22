@@ -39,9 +39,7 @@ class CheckEnvironmentUseCase:
 
     def execute(self) -> CheckEnvironmentResponse:
         distributions = self._environment_repository.get_installed_distributions()
-        installed = {
-            canonicalize_name(item.name): item.version for item in distributions
-        }
+        installed = {str(canonicalize_name(item.name)): item.version for item in distributions}
         conflicts: List[Conflict] = []
         analysis_errors: List[Dict[str, str]] = []
 

@@ -126,9 +126,7 @@ class TestRealPackages:
 
     def test_get_latest_stable_requests(self, stable_use_case):
         """Test getting latest stable version of requests."""
-        response = stable_use_case.execute(
-            GetLatestStableRequest(package_name="requests")
-        )
+        response = stable_use_case.execute(GetLatestStableRequest(package_name="requests"))
 
         assert isinstance(response.version, Version)
         assert not response.version.is_prerelease
@@ -136,9 +134,7 @@ class TestRealPackages:
 
     def test_get_latest_stable_django(self, stable_use_case):
         """Test getting latest stable version of Django."""
-        response = stable_use_case.execute(
-            GetLatestStableRequest(package_name="django")
-        )
+        response = stable_use_case.execute(GetLatestStableRequest(package_name="django"))
 
         assert isinstance(response.version, Version)
         assert not response.version.is_prerelease

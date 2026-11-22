@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pyconflict-mcp"
+version = "2.0.0"
+description = "MCP Server for PyConflict - AI Tool Integration"
+authors = [{name = "PyConflict Team"}]
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+keywords = ["mcp", "pyconflict", "dependency", "ai", "claude", "claude-code"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "mcp>=2.0.0,<3.0.0",
+    "pyconflict>=2.0.0",
+    "pydantic>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.21",
+    "pytest-cov>=4.0",
+    "black>=23.0",
+    "mypy>=1.0",
+    "ruff>=0.1.0",
+]
+
+[project.scripts]
+pyconflict-mcp = "pyconflict_mcp.server:main"
+
+[project.urls]
+Homepage = "https://github.com/alimoradi296/PyConflict"
+Documentation = "https://pyconflict.readthedocs.io"
+Repository = "https://github.com/alimoradi296/PyConflict"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+asyncio_mode = "auto"

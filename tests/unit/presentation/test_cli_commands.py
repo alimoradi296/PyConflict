@@ -59,3 +59,11 @@ def test_batch_check_rejects_ranges_and_extras(monkeypatch):
     payload = json.loads(result.stdout)
     assert payload["exit_code"] == 2
     assert all("error" in entry for entry in payload["results"])
+
+
+def test_team_check_exposes_explicit_baseline_save_option():
+    result = runner.invoke(commands.app, ["team-check", "--help"])
+
+    assert result.exit_code == 0
+    assert "--set-standard" in result.stdout
+    assert "PYCONFLICT_WORKSPACE_ID" in result.stdout

@@ -27,9 +27,7 @@ class VersionResolver:
             return True
         return version in constraint
 
-    def find_overlapping_range(
-        self, constraints: List[SpecifierSet]
-    ) -> Optional[SpecifierSet]:
+    def find_overlapping_range(self, constraints: List[SpecifierSet]) -> Optional[SpecifierSet]:
         """Find the overlapping range of multiple constraints.
 
         Args:
@@ -44,7 +42,7 @@ class VersionResolver:
 
         # Combine all constraints
         # SpecifierSet handles intersection automatically
-        combined_specs = []
+        combined_specs: List[str] = []
         for constraint in constraints:
             combined_specs.extend(str(spec) for spec in constraint)
 

@@ -64,9 +64,7 @@ class PipEnvironmentRepository(IEnvironmentRepository):
             Python version
         """
         version_info = sys.version_info
-        return Version(
-            f"{version_info.major}.{version_info.minor}.{version_info.micro}"
-        )
+        return Version(f"{version_info.major}.{version_info.minor}.{version_info.micro}")
 
     def get_platform(self) -> str:
         """Get the platform identifier.

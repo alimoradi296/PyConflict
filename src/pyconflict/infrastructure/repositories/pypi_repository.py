@@ -1,7 +1,7 @@
 """PyPI package repository implementation."""
 
 import time
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, cast
 
 import requests
 from packaging.requirements import Requirement
@@ -77,9 +77,7 @@ class PyPIPackageRepository(IPackageRepository):
 
         return self._parse_package(data)
 
-    def get_latest_stable(
-        self, name: str, python_version: Optional[Version] = None
-    ) -> Version:
+    def get_latest_stable(self, name: str, python_version: Optional[Version] = None) -> Version:
         """Get the latest stable version.
 
         Args:
@@ -112,9 +110,7 @@ class PyPIPackageRepository(IPackageRepository):
             stable.append(version)
 
         if not stable:
-            qualifier = (
-                f" compatible with Python {python_version}" if python_version else ""
-            )
+            qualifier = f" compatible with Python {python_version}" if python_version else ""
             raise RepositoryError(f"No stable version found for {name}{qualifier}")
         return max(stable)
 
@@ -128,9 +124,7 @@ class PyPIPackageRepository(IPackageRepository):
             if not requires_python:
                 return True
             try:
-                if SpecifierSet(requires_python).contains(
-                    python_version, prereleases=True
-                ):
+                if SpecifierSet(requires_python).contains(python_version, prereleases=True):
                     return True
             except InvalidSpecifier:
                 continue
@@ -191,7 +185,10 @@ class PyPIPackageRepository(IPackageRepository):
                     continue
 
                 response.raise_for_status()
-                return response.json()
+                payload = response.json()
+                if not isinstance(payload, dict):
+                    raise RepositoryError(f"Invalid JSON response for {name}")
+                return cast(Dict[str, Any], payload)
 
             except requests.exceptions.Timeout as e:
                 if attempt == self._max_retries - 1:
@@ -203,9 +200,7 @@ class PyPIPackageRepository(IPackageRepository):
                     raise RepositoryError(f"Failed to fetch {name}: {e}") from e
                 time.sleep(2**attempt)
 
-        raise RepositoryError(
-            f"Failed to fetch {name} after {self._max_retries} attempts"
-        )
+        raise RepositoryError(f"Failed to fetch {name} after {self._max_retries} attempts")
 
     def _parse_package(self, data: dict) -> Package:
         """Parse PyPI JSON response into domain entity.

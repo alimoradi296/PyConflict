@@ -36,9 +36,7 @@ class MockPackageRepository(IPackageRepository):
             raise PackageNotFoundError(name)
         return package
 
-    def get_latest_stable(
-        self, name: str, python_version: Optional[Version] = None
-    ) -> Version:
+    def get_latest_stable(self, name: str, python_version: Optional[Version] = None) -> Version:
         """Get latest stable version."""
         versions = self._versions.get(name.lower(), [])
         if not versions:

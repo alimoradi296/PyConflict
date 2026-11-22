@@ -78,14 +78,10 @@ class CheckAddPackageUseCase:
         # 4. Generate suggestions if conflicts found
         suggestions = []
         if conflicts:
-            suggestions = self._suggestion_generator.generate(
-                package, conflicts, environment
-            )
+            suggestions = self._suggestion_generator.generate(package, conflicts, environment)
 
         # 5. Calculate confidence score
-        confidence = self._calculate_confidence(
-            package, environment, request.check_deep
-        )
+        confidence = self._calculate_confidence(package, environment, request.check_deep)
 
         # 6. Generate caveats
         caveats = self._get_caveats(request)
@@ -111,9 +107,7 @@ class CheckAddPackageUseCase:
             platform=self._env_repo.get_platform(),
         )
 
-    def _calculate_confidence(
-        self, package: Package, env: Environment, check_deep: bool
-    ) -> float:
+    def _calculate_confidence(self, package: Package, env: Environment, check_deep: bool) -> float:
         """Calculate confidence in the result.
 
         The returned value is a heuristic score, not a measured accuracy rate.

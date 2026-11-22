@@ -1,0 +1,97 @@
+{
+  "name": "pyconflict-vscode",
+  "displayName": "PyConflict",
+  "description": "Python dependency conflict checker for VS Code - Check before you install",
+  "version": "2.0.0",
+  "publisher": "pyconflict",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "python",
+    "dependencies",
+    "pip",
+    "conflict",
+    "checker",
+    "ai",
+    "copilot"
+  ],
+  "activationEvents": [
+    "onLanguage:python",
+    "workspaceContains:requirements.txt",
+    "workspaceContains:pyproject.toml"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "pyconflict.checkEnvironment",
+        "title": "PyConflict: Check Environment"
+      },
+      {
+        "command": "pyconflict.checkPackage",
+        "title": "PyConflict: Check Package"
+      },
+      {
+        "command": "pyconflict.getStableVersion",
+        "title": "PyConflict: Get Latest Stable Version"
+      }
+    ],
+    "configuration": {
+      "title": "PyConflict",
+      "properties": {
+        "pyconflict.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable PyConflict extension"
+        },
+        "pyconflict.autoCheck": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check the active installed environment on workspace activation and dependency manifest save"
+        },
+        "pyconflict.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Python executable that can import the installed pyconflict package"
+        },
+        "pyconflict.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show conflict status in status bar"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "check": "tsc --noEmit -p ./",
+    "package": "vsce package --no-dependencies"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.80.0",
+    "typescript": "^5.0.0",
+    "@vscode/vsce": "^4.1.1"
+  },
+  "dependencies": {},
+  "overrides": {
+    "minimatch": "^11.0.9"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alimoradi296/PyConflict.git"
+  },
+  "bugs": {
+    "url": "https://github.com/alimoradi296/PyConflict/issues"
+  },
+  "homepage": "https://github.com/alimoradi296/PyConflict#readme",
+  "license": "MIT"
+}

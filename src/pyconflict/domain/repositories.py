@@ -33,9 +33,7 @@ class IPackageRepository(ABC):
         pass
 
     @abstractmethod
-    def get_latest_stable(
-        self, name: str, python_version: Optional[Version] = None
-    ) -> Version:
+    def get_latest_stable(self, name: str, python_version: Optional[Version] = None) -> Version:
         """Get the latest stable (non-prerelease) version.
 
         Args:

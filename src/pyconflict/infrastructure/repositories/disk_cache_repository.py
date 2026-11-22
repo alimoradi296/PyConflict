@@ -48,13 +48,17 @@ class DiskCacheRepository(ICacheRepository):
         try:
             with open(cache_file) as f:
                 data = json.load(f)
+            if not isinstance(data, dict):
+                cache_file.unlink()
+                return None
 
             # Check if expired
             if time.time() > data.get("expires_at", 0):
                 cache_file.unlink()
                 return None
 
-            return data.get("value")
+            value = data.get("value")
+            return value if isinstance(value, dict) else None
 
         except (json.JSONDecodeError, OSError):
             # Corrupted cache file - delete it

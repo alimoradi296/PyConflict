@@ -1,6 +1,6 @@
 """Conflict detection logic."""
 
-from typing import List, Optional
+from typing import AbstractSet, Dict, List, Optional, Union, cast
 
 from packaging.markers import Marker, default_environment
 
@@ -29,9 +29,7 @@ class ConflictDetector:
         """
         self._version_resolver = version_resolver or VersionResolver()
 
-    def detect_conflicts(
-        self, package: Package, environment: Environment
-    ) -> List[Conflict]:
+    def detect_conflicts(self, package: Package, environment: Environment) -> List[Conflict]:
         """Detect conflicts between a package and the environment.
 
         Args:
@@ -71,12 +69,10 @@ class ConflictDetector:
 
         try:
             marker = Marker(dep.markers)
-            context = default_environment()
+            context = cast(Dict[str, Union[str, AbstractSet[str]]], default_environment())
             context.update(
                 {
-                    "python_version": (
-                        f"{env.python_version.major}.{env.python_version.minor}"
-                    ),
+                    "python_version": (f"{env.python_version.major}.{env.python_version.minor}"),
                     "python_full_version": str(env.python_version),
                     "sys_platform": env.platform,
                     "os_name": {"win32": "nt"}.get(env.platform, "posix"),
@@ -87,7 +83,7 @@ class ConflictDetector:
                     }.get(env.platform, context["platform_system"]),
                 }
             )
-            return marker.evaluate(context)
+            return bool(marker.evaluate(context))
         except Exception:
             # If marker evaluation fails, assume dependency applies
             # Better to check and warn than to miss a conflict

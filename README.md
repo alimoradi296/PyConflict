@@ -109,6 +109,16 @@ pyconflict batch-check -p django -p "requests==2.31.0" --json
 `batch-check` accepts package names or exact `==` pins. It rejects version ranges,
 extras, and environment markers.
 
+### Optional team baseline check
+
+Install Redis support with `pip install "pyconflict[team]"`, then configure
+`PYCONFLICT_WORKSPACE_ID` and `PYCONFLICT_REDIS_URL`. Compare the current
+environment with a saved baseline by running `pyconflict team-check`. To
+explicitly save the current package names and versions as the shared baseline,
+run `pyconflict team-check --set-standard`. Saving sends those names and
+versions to the configured Redis service; a normal check only reads the
+baseline.
+
 ## Usage
 
 ### Command: `check-add`

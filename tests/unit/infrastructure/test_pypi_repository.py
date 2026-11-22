@@ -14,9 +14,7 @@ def test_latest_stable_filters_releases_by_python_version(monkeypatch):
             "3.0rc1": [{"requires_python": ">=3.8", "yanked": False}],
         }
     }
-    monkeypatch.setattr(
-        repository, "_fetch_from_pypi", lambda name, version: release_data
-    )
+    monkeypatch.setattr(repository, "_fetch_from_pypi", lambda name, version: release_data)
 
     result = repository.get_latest_stable("example", Version("3.8"))
 
@@ -31,9 +29,7 @@ def test_latest_stable_skips_yanked_release_files(monkeypatch):
             "2.0": [{"requires_python": ">=3.8", "yanked": True}],
         }
     }
-    monkeypatch.setattr(
-        repository, "_fetch_from_pypi", lambda name, version: release_data
-    )
+    monkeypatch.setattr(repository, "_fetch_from_pypi", lambda name, version: release_data)
 
     result = repository.get_latest_stable("example", Version("3.8"))
 

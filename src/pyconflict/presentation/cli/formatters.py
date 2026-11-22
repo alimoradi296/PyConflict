@@ -102,9 +102,7 @@ class JSONFormatter:
                 {
                     "dependency": c.dependency_name,
                     "required": str(c.required_constraint),
-                    "installed": (
-                        str(c.installed_version) if c.installed_version else None
-                    ),
+                    "installed": (str(c.installed_version) if c.installed_version else None),
                     "required_by": c.required_by,
                     "severity": c.severity.value,
                 }
