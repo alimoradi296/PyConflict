@@ -1,6 +1,7 @@
 # PyConflict
 
 [![CI](https://github.com/alimoradi296/PyConflict/workflows/CI/badge.svg)](https://github.com/alimoradi296/PyConflict/actions)
+[![PyPI version](https://img.shields.io/pypi/v/pyconflict.svg)](https://pypi.org/project/pyconflict/)
 [![codecov](https://codecov.io/gh/alimoradi296/PyConflict/branch/main/graph/badge.svg)](https://codecov.io/gh/alimoradi296/PyConflict)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -58,16 +59,11 @@ $ pyconflict check-add django==3.2
 
 ## Installation
 
-### From source (current)
+### From PyPI
 
 ```bash
-git clone https://github.com/alimoradi296/PyConflict.git
-cd PyConflict
-python -m pip install .
+python -m pip install pyconflict
 ```
-
-PyConflict does not have a published PyPI release yet. The PyPI install command
-will be added here after a release is published.
 
 ### Development install
 

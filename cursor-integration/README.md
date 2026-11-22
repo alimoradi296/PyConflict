@@ -11,7 +11,7 @@ This integration enables Cursor to automatically check Python dependencies befor
 ### Step 1: Install PyConflict
 
 ```bash
-python -m pip install "git+https://github.com/alimoradi296/PyConflict.git"
+python -m pip install pyconflict
 ```
 
 ### Step 2: Copy Rules to Your Project
@@ -261,7 +261,7 @@ Add to GitHub Actions:
 # .github/workflows/dependencies.yml
 - name: Check dependencies
   run: |
-    python -m pip install "git+https://github.com/alimoradi296/PyConflict.git"
+    python -m pip install pyconflict
     pyconflict check-env --json
 ```
 
@@ -294,9 +294,9 @@ Cursor: ./scripts/safe-add.sh fastapi
 
 ## Best Practices
 
-1. **Install the current source version**
+1. **Install PyConflict from PyPI**
    ```bash
-   python -m pip install --upgrade "git+https://github.com/alimoradi296/PyConflict.git"
+   python -m pip install --upgrade pyconflict
    ```
 
 2. **Review conflicts before overriding**
