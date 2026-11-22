@@ -2,7 +2,7 @@
 
 ## Current release status
 
-Version 2.0.0 is implemented in the repository and remains unreleased. The current
+Version 2.0.0 was published to PyPI on 2026-11-23. The current
 CLI checks direct package dependencies, evaluates PEP 508 markers, audits installed
 requirements, checks batches of package candidates, and filters stable versions by
 Python compatibility. The repository also contains Cursor guidance, an MCP server,
@@ -54,7 +54,7 @@ credentials in command output, cache keys, logs, or checked-in configuration exa
 
 ## Release gate
 
-Before publishing a version, update the changelog, verify the package metadata and
+For future releases, update the changelog, verify the package metadata and
 wheel, run the full CI suite, test the documented installation flow, and confirm the
 release version is available from the intended package index. A merge or successful
 CI run alone does not indicate publication. The core build uses setuptools `<77`
@@ -62,9 +62,8 @@ because Python 3.8-compatible setuptools rejects the SPDX string form introduced
 version 77. This bounds the backend to a version that accepts the current MIT license
 metadata without emitting the new deprecation warning. The MCP package uses SPDX
 metadata and setuptools 77+ because it requires Python 3.11+. Python 3.8 execution
-still needs confirmation in CI. CI now has a tag-triggered OIDC publishing job that
-runs only after all release checks pass. Register the pending publisher for workflow
-`ci.yml` and GitHub environment `pypi`, then create the `v2.0.0` tag to publish.
+was confirmed in CI. The tag-triggered OIDC publishing job passed for `v2.0.0`; PyPI
+reports the release and a clean virtual environment installed it from the index.
 
 ## Historical planning
 

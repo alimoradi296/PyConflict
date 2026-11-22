@@ -21,7 +21,7 @@ the core project and MCP package from a clone:
 ```bash
 git clone https://github.com/alimoradi296/PyConflict.git
 cd PyConflict
-pip install -e .
+python -m pip install pyconflict
 pip install -e "./pyconflict-mcp"
 ```
 
@@ -161,7 +161,7 @@ Check multiple packages at once.
 ```bash
 git clone https://github.com/alimoradi296/PyConflict.git
 cd PyConflict
-pip install -e .
+python -m pip install pyconflict
 pip install -e "./pyconflict-mcp[dev]"
 ```
 

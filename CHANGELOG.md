@@ -1,8 +1,8 @@
 # Changelog
 
-This file records changes confirmed in the repository. It does not claim that a version was published.
+This file records changes confirmed in the repository and release index.
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-11-23
 
 ### Added
 - `check-env` checks installed distribution requirements for missing or incompatible dependencies.
@@ -26,6 +26,7 @@ This file records changes confirmed in the repository. It does not claim that a 
 
 ### Verification
 - 45 core unit tests and 8 MCP tests including a real stdio handshake passed locally; 42 PyPI integration tests and one live Redis service test also passed locally.
+- The full GitHub Actions release run passed on Python 3.8–3.12, MCP stdio, Redis, PyPI integration, VS Code build, lint, and distribution checks.
 - The Redis adapter passed a live Redis service check for round trips, TTL, workspace isolation, and clearing.
 - VS Code 2.0.0 was packaged, installed in an isolated profile, and activated in an Extension Development Host.
 - The release wheel and its dependencies were installed in a clean sample project's virtual environment, and the Cursor rules and CLI command were checked there. Cursor IDE rule loading remains unverified because the IDE is not installed on the host.
@@ -34,5 +35,5 @@ This file records changes confirmed in the repository. It does not claim that a 
 - Core wheel and source distribution, plus the MCP wheel, built locally. The core wheel installed and its metadata reports `Requires-Python: >=3.8` and `License: MIT`.
 - The core build pins setuptools below 77 to avoid the PEP 639 warning on the supported Python 3.8 build path; the MCP package uses the SPDX form on its Python 3.11+ build path.
 - Twine validation passed for the core wheel and source distribution.
-- A tag-triggered GitHub Actions job is configured for PyPI Trusted Publishing; the pending publisher and release tag are not yet configured.
-- No PyPI release was made.
+- The `v2.0.0` tag published the core wheel and source distribution to PyPI through Trusted Publishing.
+- A fresh virtual environment installed `pyconflict==2.0.0` from PyPI and passed `pyconflict --version` and `pyconflict --help`.

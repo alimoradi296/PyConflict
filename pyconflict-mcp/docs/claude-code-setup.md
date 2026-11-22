@@ -11,7 +11,7 @@ git clone https://github.com/alimoradi296/PyConflict.git
 cd PyConflict
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -e .
+python -m pip install pyconflict
 python -m pip install -e ./pyconflict-mcp
 ```
 
