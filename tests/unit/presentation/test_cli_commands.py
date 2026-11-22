@@ -1,6 +1,7 @@
 """Regression tests for CLI commands with previously misleading behavior."""
 
 import json
+import re
 
 from packaging.specifiers import SpecifierSet
 from packaging.version import Version
@@ -63,7 +64,8 @@ def test_batch_check_rejects_ranges_and_extras(monkeypatch):
 
 def test_team_check_exposes_explicit_baseline_save_option():
     result = runner.invoke(commands.app, ["team-check", "--help"])
+    help_text = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
 
     assert result.exit_code == 0
-    assert "--set-standard" in result.stdout
-    assert "PYCONFLICT_WORKSPACE_ID" in result.stdout
+    assert "--set-standard" in help_text
+    assert "PYCONFLICT_WORKSPACE_ID" in help_text
