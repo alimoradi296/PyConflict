@@ -23,7 +23,7 @@ code --install-extension pyconflict-vscode-2.0.0.vsix
 PyConflict must be installed in your Python environment:
 
 ```bash
-pip install "pyconflict>=2.0.0"
+python -m pip install "git+https://github.com/alimoradi296/PyConflict.git"
 ```
 
 The selected Python interpreter must be able to import `pyconflict`. The
@@ -163,7 +163,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **PyConflict**: https://github.com/alimoradi296/PyConflict
 - **Marketplace status**: local VSIX installation only; publishing is not verified
 - **Issues**: https://github.com/alimoradi296/PyConflict/issues
-- **Documentation**: https://pyconflict.readthedocs.io
+- **Documentation**: https://github.com/alimoradi296/PyConflict/tree/main/vscode-extension
 
 ## Changelog
 
@@ -172,7 +172,7 @@ See [CHANGELOG.md](CHANGELOG.md) for version history.
 ## Support
 
 - **Report bugs**: [GitHub Issues](https://github.com/alimoradi296/PyConflict/issues)
-- **Ask questions**: [GitHub Discussions](https://github.com/alimoradi296/PyConflict/discussions)
+- **Ask questions or report issues**: [GitHub Issues](https://github.com/alimoradi296/PyConflict/issues)
 
 ---
 

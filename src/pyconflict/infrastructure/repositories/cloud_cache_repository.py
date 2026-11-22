@@ -18,7 +18,8 @@ class CloudCacheRepository(ICacheRepository):
     def __init__(self, redis_url: str, workspace_id: str) -> None:
         if redis is None:
             raise RuntimeError(
-                "Redis support is optional. Install PyConflict with `pip install pyconflict[team]`."
+                "Redis support is optional. From the PyConflict source checkout, run "
+                '`python -m pip install ".[team]`.'
             )
         if not workspace_id.strip():
             raise ValueError("workspace_id must not be empty")

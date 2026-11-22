@@ -34,11 +34,6 @@ def check_add(
     ),
     version: Optional[str] = typer.Option(None, "--version", help="Specific version to check"),
     output_json: bool = typer.Option(False, "--json", help="Output in JSON format"),
-    deep: bool = typer.Option(
-        False,
-        "--deep",
-        help="Check transitive dependencies (Phase 3, not yet implemented)",
-    ),
 ) -> None:
     """Check if adding a package will cause conflicts.
 
@@ -60,7 +55,7 @@ def check_add(
         pkg_version = parts[1] if len(parts) > 1 else None
 
     # Build request
-    request = CheckAddPackageRequest(package_name=pkg_name, version=pkg_version, check_deep=deep)
+    request = CheckAddPackageRequest(package_name=pkg_name, version=pkg_version)
 
     # Execute use case
     try:

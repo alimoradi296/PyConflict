@@ -2,6 +2,8 @@
 
 from typing import List
 
+from packaging.version import InvalidVersion, Version
+
 from pyconflict.domain.entities import Conflict, Environment, Package
 from pyconflict.domain.services.version_resolver import VersionResolver
 
@@ -66,24 +68,34 @@ class SuggestionGenerator:
         installed = conflict.installed_version
 
         if installed and required:
-            # Check if upgrade or downgrade needed
-            if str(required).startswith(">="):
-                # Need to upgrade installed version
-                return (
-                    f"Upgrade '{dep_name}' from {installed} to satisfy "
-                    f"{package.name}'s requirement ({required})"
+            installed_version = Version(str(installed))
+            for specifier in required:
+                try:
+                    bound = Version(specifier.version)
+                except InvalidVersion:
+                    continue
+
+                below_lower_bound = (specifier.operator == ">" and installed_version <= bound) or (
+                    specifier.operator == ">=" and installed_version < bound
                 )
-            elif str(required).startswith("<"):
-                # Need to downgrade or find compatible version
-                return (
-                    f"'{dep_name}' version {installed} is too new for {package.name} "
-                    f"(requires {required}). Consider using an older version of {package.name}"
+                if below_lower_bound:
+                    return (
+                        f"Upgrade '{dep_name}' from {installed} to satisfy "
+                        f"{package.name}'s requirement ({required})"
+                    )
+
+                above_upper_bound = (specifier.operator == "<" and installed_version >= bound) or (
+                    specifier.operator == "<=" and installed_version > bound
                 )
-            else:
-                # Complex constraint
-                return (
-                    f"'{dep_name}' version {installed} doesn't satisfy {package.name}'s "
-                    f"requirement ({required}). Check for compatible versions"
-                )
+                if above_upper_bound:
+                    return (
+                        f"Use a version of '{dep_name}' compatible with {package.name} "
+                        f"(requires {required}), or choose a different {package.name} version"
+                    )
+
+            return (
+                f"'{dep_name}' version {installed} doesn't satisfy {package.name}'s "
+                f"requirement ({required}). Check for compatible versions"
+            )
 
         return f"Resolve '{dep_name}' version conflict manually"

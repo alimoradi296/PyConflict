@@ -80,11 +80,13 @@ Check if adding a package will cause conflicts.
   "conflicts": [
     {
       "dependency": "asgiref",
-      "required": ">=3.3.2,<4",
-      "installed": "3.7.2"
+      "required": "<4,>=3.3.2",
+      "installed": "3.2.0"
     }
   ],
-  "suggestions": ["Upgrade django to 4.2+"]
+  "suggestions": [
+    "Upgrade 'asgiref' from 3.2.0 to satisfy django's requirement (<4,>=3.3.2)"
+  ]
 }
 ```
 

@@ -15,7 +15,6 @@ class CheckAddPackageRequest:
 
     package_name: str
     version: Optional[str] = None
-    check_deep: bool = False  # Phase 3: transitive dependencies
 
 
 @dataclass
@@ -26,7 +25,6 @@ class CheckAddPackageResponse:
     package: Package
     conflicts: List[Conflict]
     suggestions: List[str]
-    confidence: float
     caveats: List[str]
 
 
@@ -80,18 +78,14 @@ class CheckAddPackageUseCase:
         if conflicts:
             suggestions = self._suggestion_generator.generate(package, conflicts, environment)
 
-        # 5. Calculate confidence score
-        confidence = self._calculate_confidence(package, environment, request.check_deep)
-
-        # 6. Generate caveats
-        caveats = self._get_caveats(request)
+        # 5. Describe checks that are not part of the current analysis.
+        caveats = self._get_caveats()
 
         return CheckAddPackageResponse(
             safe_to_add=len(conflicts) == 0,
             package=package,
             conflicts=conflicts,
             suggestions=suggestions,
-            confidence=confidence,
             caveats=caveats,
         )
 
@@ -107,44 +101,13 @@ class CheckAddPackageUseCase:
             platform=self._env_repo.get_platform(),
         )
 
-    def _calculate_confidence(self, package: Package, env: Environment, check_deep: bool) -> float:
-        """Calculate confidence in the result.
-
-        The returned value is a heuristic score, not a measured accuracy rate.
-
-        Args:
-            package: The package being checked
-            env: The environment
-            check_deep: Whether transitive deps were checked
-
-        Returns:
-            Confidence score between 0.0 and 1.0
-        """
-        confidence = 0.90
-
-        # Phase 3: Account for transitive dependencies
-        if check_deep:
-            confidence *= 0.90
-
-        return round(confidence, 2)
-
-    def _get_caveats(self, request: CheckAddPackageRequest) -> List[str]:
+    def _get_caveats(self) -> List[str]:
         """List limitations of this check.
-
-        Args:
-            request: The request
 
         Returns:
             List of caveats/warnings about what wasn't checked
         """
-        caveats = []
-
-        # Current limitations
-        caveats.append("Only direct dependencies checked (not transitive)")
-        caveats.append("Optional extras not included")
-
-        # Add more specific caveats
-        if not request.check_deep:
-            caveats.append("Use --deep for transitive dependency checking (Phase 3)")
-
-        return caveats
+        return [
+            "Only direct dependencies checked (not transitive)",
+            "Optional extras not included",
+        ]
