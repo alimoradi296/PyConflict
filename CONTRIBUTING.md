@@ -20,8 +20,8 @@ Be respectful, inclusive, and constructive. We're here to build something useful
 
 1. **Fork and clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/pyconflict.git
-   cd pyconflict
+   git clone https://github.com/YOUR_USERNAME/PyConflict.git
+   cd PyConflict
    ```
 
 2. **Create a virtual environment**
@@ -35,9 +35,14 @@ Be respectful, inclusive, and constructive. We're here to build something useful
    pip install -e ".[dev]"
    ```
 
-4. **Run tests to verify setup**
+4. **Run the unit tests to verify setup**
    ```bash
-   pytest
+   pytest tests/unit
+   ```
+
+   Integration tests contact public PyPI and can be run separately when network access is available:
+   ```bash
+   pytest tests/integration -m integration
    ```
 
 ## How to Contribute
@@ -134,7 +139,7 @@ We love new ideas! Before suggesting a feature:
 
 4. **Commit your changes**
    ```bash
-   git add .
+   git add path/to/changed-file
    git commit -m "feat: add support for poetry.lock files"
    ```
 
@@ -195,6 +200,18 @@ We follow PEP 8 with these tools:
 - **Black** for formatting (line length: 100)
 - **Ruff** for linting
 - **MyPy** for type checking
+
+Run the same checks used by CI before opening a pull request:
+
+```bash
+black --check src tests
+ruff check src tests
+mypy src
+pytest tests/unit
+pytest tests/integration -m integration
+```
+
+Integration tests need network access to public PyPI. Run them separately from unit tests.
 
 ### Architecture Guidelines
 

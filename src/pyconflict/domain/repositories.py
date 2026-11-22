@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 from packaging.version import Version
 
-from pyconflict.domain.entities import Package
+from pyconflict.domain.entities import InstalledDistribution, Package
 
 
 class IPackageRepository(ABC):
@@ -33,9 +33,7 @@ class IPackageRepository(ABC):
         pass
 
     @abstractmethod
-    def get_latest_stable(
-        self, name: str, python_version: Optional[Version] = None
-    ) -> Version:
+    def get_latest_stable(self, name: str, python_version: Optional[Version] = None) -> Version:
         """Get the latest stable (non-prerelease) version.
 
         Args:
@@ -116,6 +114,11 @@ class IEnvironmentRepository(ABC):
         Returns:
             Dictionary mapping package name to installed version
         """
+        pass
+
+    @abstractmethod
+    def get_installed_distributions(self) -> List[InstalledDistribution]:
+        """Get installed distributions and their declared requirements."""
         pass
 
     @abstractmethod

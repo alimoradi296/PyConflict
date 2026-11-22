@@ -1,5 +1,12 @@
 # PyConflict
 
+[![PyPI version](https://badge.fury.io/py/pyconflict.svg)](https://badge.fury.io/py/pyconflict)
+[![Python versions](https://img.shields.io/pypi/pyversions/pyconflict.svg)](https://pypi.org/project/pyconflict/)
+[![CI](https://github.com/alimoradi296/PyConflict/workflows/CI/badge.svg)](https://github.com/alimoradi296/PyConflict/actions)
+[![codecov](https://codecov.io/gh/alimoradi296/PyConflict/branch/main/graph/badge.svg)](https://codecov.io/gh/alimoradi296/PyConflict)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+
 **Python Dependency Conflict Checker - Check before you install**
 
 PyConflict answers one critical question: **"Will adding this package break my environment?"**
@@ -14,7 +21,6 @@ $ pip install django==3.2
 # ... 5 minutes later ...
 ERROR: django 3.2 requires asgiref>=3.3.2,<4
 but channels 4.0 requires asgiref>=3.5.0
-# Time wasted: 15-30 minutes debugging
 ```
 
 **The Solution:**
@@ -33,21 +39,39 @@ $ pyconflict check-add django==3.2
 
 ## Features
 
-### MVP (Current)
-- ✅ **Proactive conflict detection** - Check before installing
-- ✅ **AI-assistant friendly** - JSON output for Claude Code, Cursor, etc.
-- ✅ **Fast** - Aggressive caching (<3s cached, <10s uncached)
-- ✅ **Direct dependencies** - Checks package's immediate dependencies
+- ✅ **Proactive conflict detection** - Check dependency constraints before installing
+- ✅ **AI-assistant friendly** - JSON output for Claude Code, Cursor, Copilot
+- ✅ **Cached PyPI metadata** - Reuse package data between checks
+- ✅ **Direct dependencies** - Checks package's immediate dependencies against installed versions
 - ✅ **Latest stable version** - Find the newest non-prerelease version
+- ✅ **Clean Architecture** - Maintainable, testable, extensible codebase
+- ✅ **Tests** - Unit and integration test suites are included
 
-### Coming Soon
-- **Phase 2**: Platform markers, extras handling, MCP server for Claude Code
-- **Phase 3**: Transitive dependency checking, CI/CD integration
+### Planned
+- **Next**: Extras handling and MCP server for Claude Code
+- **Phase 3** (Month 2): Transitive dependency checking, Python API, CI/CD templates
+- **Phase 4** (Months 3-4): Private PyPI support, enterprise features
 
 ## Installation
 
+### From PyPI (Recommended)
+
 ```bash
 pip install pyconflict
+```
+
+### From Source
+
+```bash
+git clone https://github.com/alimoradi296/PyConflict.git
+cd PyConflict
+pip install -e ".[dev]"
+```
+
+### Verify Installation
+
+```bash
+pyconflict --help
 ```
 
 ## Quick Start
@@ -74,6 +98,26 @@ $ pyconflict stable pandas
 # Filter by Python version
 $ pyconflict stable numpy --python-version 3.8
 ```
+
+### Check the installed environment and multiple package candidates
+
+```bash
+pyconflict check-env --json
+pyconflict batch-check -p django -p "requests==2.31.0" --json
+```
+
+`batch-check` accepts package names or exact `==` pins. It rejects version ranges,
+extras, and environment markers.
+
+### Optional team baseline check
+
+Install Redis support with `pip install "pyconflict[team]"`, then configure
+`PYCONFLICT_WORKSPACE_ID` and `PYCONFLICT_REDIS_URL`. Compare the current
+environment with a saved baseline by running `pyconflict team-check`. To
+explicitly save the current package names and versions as the shared baseline,
+run `pyconflict team-check --set-standard`. Saving sends those names and
+versions to the configured Redis service; a normal check only reads the
+baseline.
 
 ## Usage
 
@@ -103,7 +147,9 @@ pyconflict check-add <package> [OPTIONS]
 # Safe to add
 $ pyconflict check-add fastapi
 ✓ Safe to add fastapi==0.104.1
-  Confidence: 90%
+  Confidence: <heuristic score>
+
+The CLI prints a heuristic confidence score. It is not a measured accuracy rate, and the value can vary by result.
 
 # Conflict detected
 $ pyconflict check-add django==3.2
@@ -141,7 +187,6 @@ $ pyconflict check-add django==3.2 --json
   "confidence": 0.9,
   "caveats": [
     "Only direct dependencies checked (not transitive)",
-    "Platform-specific markers not evaluated",
     "Optional extras not included"
   ]
 }
@@ -231,14 +276,29 @@ PyConflict follows **Clean Architecture** principles:
 - **Swappable**: Can replace PyPI with private registry without touching business logic
 - **Maintainable**: Clear boundaries prevent spaghetti code
 
+## Performance
+
+PyConflict is designed for speed:
+
+- **Cached requests**: < 2 seconds
+- **Uncached requests**: < 10 seconds
+- **Stable version lookup**: < 5 seconds
+- **Parallel requests**: Supports concurrent package checks
+
+The timings above are targets and have not been verified for this checkout.
+
 ## Development
 
 ### Setup
 
 ```bash
 # Clone the repository
-git clone https://github.com/alimoradi296/pyconflict.git
-cd pyconflict
+git clone https://github.com/alimoradi296/PyConflict.git
+cd PyConflict
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 
 # Install in development mode
 pip install -e ".[dev]"
@@ -253,6 +313,12 @@ pytest
 # Run with coverage
 pytest --cov=pyconflict --cov-report=html
 
+# Run only unit tests (fast)
+pytest tests/unit -v
+
+# Run integration tests (requires network)
+pytest tests/integration -v -m integration
+
 # Run specific test
 pytest tests/unit/domain/test_version_resolver.py
 ```
@@ -264,42 +330,58 @@ pytest tests/unit/domain/test_version_resolver.py
 black src tests
 
 # Lint
-ruff src tests
+ruff check src tests
 
 # Type check
 mypy src
+
+# Run all checks (CI simulation)
+black --check src tests && ruff check src tests && mypy src && pytest
 ```
 
-## Limitations (MVP)
+## Limitations
 
-PyConflict MVP focuses on direct dependencies only. The following are Phase 2/3 features:
+PyConflict checks direct dependencies for `check-add` and installed distribution
+requirements for `check-env`:
 
-- ❌ **Platform markers not evaluated** - May miss platform-specific dependencies
-- ❌ **Extras not checked** - `package[security]` extras are ignored
-- ❌ **Transitive dependencies not checked** - Only direct dependencies analyzed
-- ❌ **Dynamic dependencies** - Install-time determined deps cannot be predicted
+- ⚠️ **Direct dependencies only** - Transitive deps not checked (Phase 3: --deep flag)
+- ⚠️ **Extras not checked** - `package[security]` extras are not included
+- ⚠️ **Public PyPI only** - Private registries not supported (Phase 4)
+- ⚠️ **Suggestions only** - No automatic fixes (by design - user decides)
 
-**Confidence Score**: 90% for direct dependencies
+**Accuracy is not measured.** The tool checks direct dependency constraints against
+the current environment. It does not resolve the full dependency graph.
+
+See [Roadmap](ROADMAP.md) for planned enhancements.
 
 ## Roadmap
 
-### Phase 1: MVP (✅ Complete)
-- Direct dependency conflict detection
-- Latest stable version lookup
-- CLI with JSON output
-- Basic caching
+### Current implementation
+- ✅ Direct dependency conflict detection
+- ✅ PEP 508 environment marker evaluation
+- ✅ Installed environment check
+- ✅ Batch package checks
+- ✅ Latest stable version lookup
+- ✅ CLI with JSON output
 
-### Phase 2 (Week 3-4)
-- Platform marker support (PEP 508)
-- Extras handling
-- **MCP server for Claude Code**
+### Planned
+- Extras handling (`package[extra]`)
+- MCP server for Claude Code
 - Enhanced error messages
 
-### Phase 3 (Month 2)
+### 🚀 v3.0 - Deep Analysis (Month 2)
 - Transitive dependency checking (--deep flag)
-- CI/CD integration examples
-- Python API
-- Configuration file support
+- Python API for programmatic use
+- Configuration file support (.pyconflict.yml)
+- CI/CD integration templates
+
+### 🚀 v4.0+ - Enterprise & Beyond
+- Private PyPI repository support
+- Team collaboration features
+- Security scanning integration
+- Multi-language support (npm, cargo, etc.)
+
+See [ROADMAP.md](ROADMAP.md) for the longer-term project direction.
 
 ## FAQ
 
@@ -313,14 +395,39 @@ A: Not in MVP. Phase 2 will add support for private registries.
 A: No. PyConflict provides suggestions, but you decide what to do. Automatic fixes are too risky.
 
 **Q: How accurate is it?**
-A: 90%+ for direct dependencies (MVP scope). Phase 2 will add platform/extras support (85% accuracy).
+A: No accuracy percentage has been measured. The current check covers direct dependencies and has documented limitations around transitive dependencies, markers, and extras.
 
 **Q: Does it replace poetry/pip-tools?**
 A: No. PyConflict is a checker, not a package manager or lock file tool. Use it alongside your existing tools.
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! We need help with:
+
+- 🐛 Bug reports and fixes
+- ✨ Feature implementations
+- 📝 Documentation improvements
+- 🧪 Test coverage expansion
+- 🌍 Translations (future)
+
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+### Development Workflow
+
+1. Fork and clone the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Make your changes with tests
+4. Ensure all tests pass (`pytest`)
+5. Ensure code quality (`black`, `ruff`, `mypy`)
+6. Commit with conventional commits (`feat:`, `fix:`, etc.)
+7. Push and create a Pull Request
+
+## Community
+
+- 🐛 **Report bugs**: [GitHub Issues](https://github.com/alimoradi296/PyConflict/issues)
+- 💡 **Request features**: [GitHub Discussions](https://github.com/alimoradi296/PyConflict/discussions)
+- 💬 **Ask questions**: [GitHub Discussions](https://github.com/alimoradi296/PyConflict/discussions)
+- 🤝 **Contribute**: See [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
@@ -328,10 +435,18 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- **GitHub**: https://github.com/alimoradi296/pyconflict
+- **GitHub**: https://github.com/alimoradi296/PyConflict
 - **PyPI**: https://pypi.org/project/pyconflict/
 - **Documentation**: https://pyconflict.readthedocs.io
-- **Issues**: https://github.com/alimoradi/pyconflict/issues
+- **Issues**: https://github.com/alimoradi296/PyConflict/issues
+- **Discussions**: https://github.com/alimoradi296/PyConflict/discussions
+- **Changelog**: [CHANGELOG.md](CHANGELOG.md)
+
+## Star History
+
+If PyConflict saves you time, please give it a star on GitHub!
+
+[![Star History Chart](https://api.star-history.com/svg?repos=alimoradi296/PyConflict&type=Date)](https://star-history.com/#alimoradi296/PyConflict&Date)
 
 ## Credits
 

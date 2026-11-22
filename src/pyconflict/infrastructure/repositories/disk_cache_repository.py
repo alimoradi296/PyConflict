@@ -29,7 +29,7 @@ class DiskCacheRepository(ICacheRepository):
         try:
             self._cache_dir.mkdir(parents=True, exist_ok=True)
         except OSError as e:
-            raise CacheError(f"Failed to create cache directory: {e}")
+            raise CacheError(f"Failed to create cache directory: {e}") from e
 
     def get(self, key: str) -> Optional[dict]:
         """Get a value from cache.
@@ -46,15 +46,19 @@ class DiskCacheRepository(ICacheRepository):
             return None
 
         try:
-            with open(cache_file, "r") as f:
+            with open(cache_file) as f:
                 data = json.load(f)
+            if not isinstance(data, dict):
+                cache_file.unlink()
+                return None
 
             # Check if expired
             if time.time() > data.get("expires_at", 0):
                 cache_file.unlink()
                 return None
 
-            return data.get("value")
+            value = data.get("value")
+            return value if isinstance(value, dict) else None
 
         except (json.JSONDecodeError, OSError):
             # Corrupted cache file - delete it
@@ -84,7 +88,7 @@ class DiskCacheRepository(ICacheRepository):
             self._evict_if_needed()
 
         except (OSError, TypeError) as e:
-            raise CacheError(f"Failed to write cache: {e}")
+            raise CacheError(f"Failed to write cache: {e}") from e
 
     def clear(self) -> None:
         """Clear all cached values."""
@@ -92,7 +96,7 @@ class DiskCacheRepository(ICacheRepository):
             for cache_file in self._cache_dir.glob("*.json"):
                 cache_file.unlink()
         except OSError as e:
-            raise CacheError(f"Failed to clear cache: {e}")
+            raise CacheError(f"Failed to clear cache: {e}") from e
 
     def _get_cache_file(self, key: str) -> Path:
         """Get the cache file path for a key.

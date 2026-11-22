@@ -1,0 +1,257 @@
+# PyConflict Rules for Cursor
+
+## Python Dependency Management
+
+### Before Adding Any Python Package
+
+**CRITICAL**: Always check for dependency conflicts before adding packages.
+
+**Step 1**: Check if package is safe to add
+```bash
+pyconflict check-add <package-name> --json
+```
+
+**Step 2**: Analyze the result
+- If `exit_code == 0`: Package is safe to add
+- If `exit_code == 1`: Conflicts detected - DO NOT add
+- If `exit_code == 2`: Package not found
+- If `exit_code >= 4`: Error occurred
+
+**Step 3**: Only proceed if safe
+- If safe: Add package to requirements.txt or pyproject.toml
+- If conflicts: Show user the conflicts and suggest alternatives
+
+### Example Workflow
+
+**User Request**: "Add django to my project"
+
+**Cursor Action**:
+```bash
+# 1. Check if safe
+result=$(pyconflict check-add django --json)
+exit_code=$?
+
+# 2. Parse result
+if [ $exit_code -eq 0 ]; then
+    # Safe to add
+    echo "django" >> requirements.txt
+    echo "✓ Added django successfully"
+else
+    # Show conflicts
+    echo "✗ Cannot add django - conflicts detected:"
+    echo "$result" | jq '.conflicts'
+
+    # Show suggestions
+    echo "Suggestions:"
+    echo "$result" | jq '.suggestions'
+fi
+```
+
+### Specific Rules
+
+#### Rule 1: Check Before Add
+**Trigger**: User asks to add a Python package
+**Action**: Run `pyconflict check-add <package>` before modifying any files
+**Rationale**: Prevent breaking the environment
+
+#### Rule 2: Batch Check for Multiple Packages
+**Trigger**: User asks to add multiple packages
+**Action**: Run `pyconflict batch-check --file packages.txt --json`
+**Rationale**: More efficient than checking one by one
+
+#### Rule 3: Check After Suggesting Upgrades
+**Trigger**: Suggesting to upgrade a package
+**Action**: Run `pyconflict check-add <package>==<new-version>`
+**Rationale**: Ensure upgrade won't break dependencies
+
+#### Rule 4: Get Latest Stable Version
+**Trigger**: User asks for "latest" version
+**Action**: Run `pyconflict stable <package> --json`
+**Rationale**: Use latest stable, not prerelease
+
+#### Rule 5: Verify Environment Health
+**Trigger**: After making dependency changes
+**Action**: Run `pyconflict check-env --json`
+**Rationale**: Ensure environment is still healthy
+
+### Error Handling
+
+**Package Not Found (exit_code == 2)**:
+```
+User: "Add djnago"
+Cursor: "Package 'djnago' not found on PyPI. Did you mean 'django'?"
+```
+
+**Conflicts Detected (exit_code == 1)**:
+```
+User: "Add django==3.2"
+Cursor: "Cannot add django==3.2. It conflicts with:
+  - asgiref (required: >=3.3.2,<4, installed: 3.7.2)
+
+Suggestion: Try django==4.2 instead (compatible with your packages)"
+```
+
+**Repository Error (exit_code == 4)**:
+```
+User: "Add tensorflow"
+Cursor: "Unable to check tensorflow - PyPI connection error. Proceed with caution."
+```
+
+### Best Practices
+
+1. **Always show confidence level**
+   - PyConflict returns a confidence score (0-1)
+   - If confidence < 0.8, warn user: "Confidence: 70% - some dependencies not verified"
+
+2. **Display caveats**
+   - PyConflict includes caveats (e.g., "Platform markers not checked")
+   - Show these to user for transparency
+
+3. **Suggest alternatives when conflicts occur**
+   - Use the `suggestions` field from PyConflict output
+   - Present alternatives to the user
+
+4. **Cache results**
+   - PyConflict caches results automatically
+   - Subsequent checks are very fast (<2s)
+
+5. **Batch operations**
+   - When user provides multiple packages, use batch check
+   - More efficient and provides better user experience
+
+### Integration Examples
+
+#### Example 1: Single Package
+```python
+# User: "Add fastapi to my project"
+
+# Cursor executes:
+import subprocess
+import json
+
+result = subprocess.run(
+    ["pyconflict", "check-add", "fastapi", "--json"],
+    capture_output=True,
+    text=True
+)
+
+data = json.loads(result.stdout)
+
+if result.returncode == 0:
+    # Safe to add
+    with open("requirements.txt", "a") as f:
+        f.write(f"fastapi=={data['package']['version']}\n")
+    print(f"✓ Added fastapi=={data['package']['version']}")
+else:
+    # Show conflicts
+    print("✗ Cannot add fastapi:")
+    for conflict in data['conflicts']:
+        print(f"  - {conflict['dependency']}: {conflict['required']}")
+```
+
+#### Example 2: Multiple Packages
+```python
+# User: "Add django, celery, and redis to my project"
+
+# Cursor executes:
+packages = ["django", "celery", "redis"]
+
+# Create temporary file
+with open("/tmp/packages.txt", "w") as f:
+    for pkg in packages:
+        f.write(f"{pkg}\n")
+
+result = subprocess.run(
+    ["pyconflict", "batch-check", "--file", "/tmp/packages.txt", "--json"],
+    capture_output=True,
+    text=True
+)
+
+data = json.loads(result.stdout)
+
+safe_packages = [r for r in data['results'] if r['safe']]
+unsafe_packages = [r for r in data['results'] if not r['safe']]
+
+if unsafe_packages:
+    print(f"⚠ {len(unsafe_packages)} package(s) have conflicts:")
+    for pkg in unsafe_packages:
+        print(f"  ✗ {pkg['package']}")
+    print(f"\n✓ {len(safe_packages)} package(s) are safe to add:")
+    for pkg in safe_packages:
+        print(f"  ✓ {pkg['package']}")
+else:
+    print(f"✓ All {len(packages)} packages are safe to add!")
+```
+
+#### Example 3: Version Upgrade
+```python
+# User: "Upgrade django to the latest version"
+
+# Cursor executes:
+# 1. Get latest stable
+result = subprocess.run(
+    ["pyconflict", "stable", "django", "--json"],
+    capture_output=True,
+    text=True
+)
+latest = json.loads(result.stdout)
+
+# 2. Check if safe
+result = subprocess.run(
+    ["pyconflict", "check-add", "django", "--version", latest['version'], "--json"],
+    capture_output=True,
+    text=True
+)
+
+if result.returncode == 0:
+    print(f"✓ Safe to upgrade to django=={latest['version']}")
+else:
+    print(f"✗ Cannot upgrade to django=={latest['version']} - conflicts detected")
+    data = json.loads(result.stdout)
+    print("Suggestions:", data.get('suggestions', []))
+```
+
+### Commands Reference
+
+| Command | Purpose | Exit Code |
+|---------|---------|-----------|
+| `pyconflict check-add <pkg>` | Check if package is safe | 0=safe, 1=conflict |
+| `pyconflict stable <pkg>` | Get latest stable version | 0=found, 2=not found |
+| `pyconflict check-env` | Check current environment | 0=healthy, 1=conflicts |
+| `pyconflict batch-check --file <file>` | Check multiple packages | 0=all safe, 1=some conflicts |
+
+### Configuration
+
+PyConflict can be configured via `.pyconflict.yml`:
+
+```yaml
+# Team features (v2.0)
+team:
+  enabled: true
+  workspace_id: "your-team-id"
+  cache_backend: "redis://localhost:6379"
+  sync_interval: 300
+
+# Cache settings
+cache:
+  enabled: true
+  ttl: 3600
+```
+
+### Troubleshooting
+
+**Issue**: PyConflict not installed
+**Solution**:
+```bash
+pip install pyconflict>=2.0.0
+```
+
+**Issue**: Slow performance
+**Solution**: PyConflict caches aggressively. First run is slow (~10s), subsequent runs are fast (<2s).
+
+**Issue**: False positives
+**Solution**: PyConflict v2.0 checks direct dependencies only. Some warnings may be platform-specific. Check the `caveats` field.
+
+---
+
+**Remember**: Safety first! Always check before adding packages. PyConflict takes <2s and can save hours of debugging.

@@ -1,7 +1,7 @@
 """Pip-based environment repository implementation."""
 
 import sys
-from typing import Dict
+from typing import Dict, List
 
 try:
     # Python 3.8+
@@ -12,6 +12,7 @@ except ImportError:
 
 from packaging.version import InvalidVersion, Version
 
+from pyconflict.domain.entities import InstalledDistribution
 from pyconflict.domain.repositories import IEnvironmentRepository
 
 
@@ -39,6 +40,22 @@ class PipEnvironmentRepository(IEnvironmentRepository):
                 continue
 
         return packages
+
+    def get_installed_distributions(self) -> List[InstalledDistribution]:
+        """Get installed package metadata and its declared requirements."""
+        installed = []
+        for dist in distributions():
+            try:
+                installed.append(
+                    InstalledDistribution(
+                        name=dist.metadata["Name"],
+                        version=Version(dist.version),
+                        requirements=dist.requires or [],
+                    )
+                )
+            except (InvalidVersion, KeyError):
+                continue
+        return installed
 
     def get_python_version(self) -> Version:
         """Get the current Python version.

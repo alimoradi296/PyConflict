@@ -51,9 +51,7 @@ class SuggestionGenerator:
 
         return suggestions
 
-    def _generate_conflict_suggestion(
-        self, conflict: Conflict, package: Package
-    ) -> str:
+    def _generate_conflict_suggestion(self, conflict: Conflict, package: Package) -> str:
         """Generate a suggestion for a single conflict.
 
         Args:

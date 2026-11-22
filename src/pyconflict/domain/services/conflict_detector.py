@@ -1,9 +1,8 @@
 """Conflict detection logic."""
 
-import sys
-from typing import List, Optional
+from typing import AbstractSet, Dict, List, Optional, Union, cast
 
-from packaging.markers import Marker
+from packaging.markers import Marker, default_environment
 
 from pyconflict.domain.entities import (
     Conflict,
@@ -43,9 +42,8 @@ class ConflictDetector:
         conflicts = []
 
         for dep in package.dependencies:
-            # MVP: Skip platform markers check (Phase 2 feature)
-            # if not self._should_check_dependency(dep, environment):
-            #     continue
+            if not self._should_check_dependency(dep, environment):
+                continue
 
             conflict = self._check_dependency(dep, package, environment)
             if conflict:
@@ -71,14 +69,21 @@ class ConflictDetector:
 
         try:
             marker = Marker(dep.markers)
-            # Build evaluation context
-            context = {
-                "python_version": f"{env.python_version.major}.{env.python_version.minor}",
-                "python_full_version": str(env.python_version),
-                "sys_platform": env.platform,
-                "platform_system": sys.platform,
-            }
-            return marker.evaluate(context)
+            context = cast(Dict[str, Union[str, AbstractSet[str]]], default_environment())
+            context.update(
+                {
+                    "python_version": (f"{env.python_version.major}.{env.python_version.minor}"),
+                    "python_full_version": str(env.python_version),
+                    "sys_platform": env.platform,
+                    "os_name": {"win32": "nt"}.get(env.platform, "posix"),
+                    "platform_system": {
+                        "win32": "Windows",
+                        "linux": "Linux",
+                        "darwin": "Darwin",
+                    }.get(env.platform, context["platform_system"]),
+                }
+            )
+            return bool(marker.evaluate(context))
         except Exception:
             # If marker evaluation fails, assume dependency applies
             # Better to check and warn than to miss a conflict

@@ -53,9 +53,7 @@ class GetLatestStableUseCase:
         if request.python_version:
             python_version = Version(request.python_version)
 
-        version = self._package_repo.get_latest_stable(
-            request.package_name, python_version
-        )
+        version = self._package_repo.get_latest_stable(request.package_name, python_version)
 
         return GetLatestStableResponse(
             package_name=request.package_name,
