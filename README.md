@@ -137,9 +137,9 @@ pyconflict check-add <package> [OPTIONS]
 # Safe to add
 $ pyconflict check-add fastapi
 ✓ Safe to add fastapi==0.104.1
-  Confidence: 90%
+  Confidence: <heuristic score>
 
-The confidence value is a heuristic score, not a measured accuracy rate.
+The CLI prints a heuristic confidence score. It is not a measured accuracy rate, and the value can vary by result.
 
 # Conflict detected
 $ pyconflict check-add django==3.2
