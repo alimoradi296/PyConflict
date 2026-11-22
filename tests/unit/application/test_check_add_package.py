@@ -9,7 +9,7 @@ from pyconflict.application.use_cases.check_add_package import (
     CheckAddPackageRequest,
     CheckAddPackageUseCase,
 )
-from pyconflict.domain.entities import Dependency, Environment, Package
+from pyconflict.domain.entities import Dependency, InstalledDistribution, Package
 from pyconflict.domain.repositories import IEnvironmentRepository, IPackageRepository
 from pyconflict.domain.services.conflict_detector import ConflictDetector
 from pyconflict.domain.services.suggestion_generator import SuggestionGenerator
@@ -64,6 +64,10 @@ class MockEnvironmentRepository(IEnvironmentRepository):
     def get_installed_packages(self) -> Dict[str, Version]:
         """Get installed packages."""
         return self._packages
+
+    def get_installed_distributions(self) -> List[InstalledDistribution]:
+        """Get installed distributions."""
+        return []
 
     def get_python_version(self) -> Version:
         """Get Python version."""
@@ -227,8 +231,8 @@ def test_check_add_package_not_found():
     request = CheckAddPackageRequest(package_name="nonexistent-package")
 
     try:
-        response = use_case.execute(request)
-        assert False, "Should have raised PackageNotFoundError"
+        use_case.execute(request)
+        raise AssertionError("Should have raised PackageNotFoundError")
     except Exception as e:
         from pyconflict.application.exceptions import PackageNotFoundError
 
@@ -265,7 +269,7 @@ def test_check_add_package_caveats():
     # Assert
     assert len(response.caveats) > 0
     assert any("direct dependencies" in caveat.lower() for caveat in response.caveats)
-    assert any("platform" in caveat.lower() for caveat in response.caveats)
+    assert any("extras" in caveat.lower() for caveat in response.caveats)
 
 
 def test_check_add_package_multiple_conflicts():

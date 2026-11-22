@@ -5,13 +5,13 @@ from typing import List, Optional
 
 import requests
 from packaging.requirements import Requirement
-from packaging.specifiers import SpecifierSet
+from packaging.specifiers import InvalidSpecifier, SpecifierSet
 from packaging.version import InvalidVersion, Version
 
+from pyconflict import __version__
 from pyconflict.application.exceptions import PackageNotFoundError, RepositoryError
 from pyconflict.domain.entities import Dependency, Package
 from pyconflict.domain.repositories import ICacheRepository, IPackageRepository
-from pyconflict.infrastructure.exceptions import PyPIAPIError, RateLimitError
 
 
 class PyPIPackageRepository(IPackageRepository):
@@ -42,7 +42,7 @@ class PyPIPackageRepository(IPackageRepository):
         self._session = requests.Session()
         self._session.headers.update(
             {
-                "User-Agent": "PyConflict/0.1.0 (Python Dependency Checker)",
+                "User-Agent": f"PyConflict/{__version__} (Python Dependency Checker)",
                 "Accept": "application/json",
             }
         )
@@ -93,17 +93,48 @@ class PyPIPackageRepository(IPackageRepository):
             PackageNotFoundError: If package doesn't exist
             RepositoryError: If no stable version found
         """
-        versions = self.get_all_versions(name)
+        data = self._fetch_from_pypi(name, version=None)
+        releases = data.get("releases", {})
+        stable = []
 
-        # Filter out prereleases
-        stable = [v for v in versions if not v.is_prerelease]
+        for version_text, files in releases.items():
+            try:
+                version = Version(version_text)
+            except InvalidVersion:
+                continue
+            if version.is_prerelease or version.is_devrelease:
+                continue
+
+            if python_version is not None and not self._release_supports_python(
+                files, python_version
+            ):
+                continue
+            stable.append(version)
 
         if not stable:
-            raise RepositoryError(f"No stable version found for {name}")
-
-        # Phase 2: Filter by Python version if specified
-        # For MVP, just return the latest stable
+            qualifier = (
+                f" compatible with Python {python_version}" if python_version else ""
+            )
+            raise RepositoryError(f"No stable version found for {name}{qualifier}")
         return max(stable)
+
+    @staticmethod
+    def _release_supports_python(files: list, python_version: Version) -> bool:
+        """Return whether at least one non-yanked release file supports Python."""
+        for file_info in files:
+            if file_info.get("yanked", False):
+                continue
+            requires_python = file_info.get("requires_python")
+            if not requires_python:
+                return True
+            try:
+                if SpecifierSet(requires_python).contains(
+                    python_version, prereleases=True
+                ):
+                    return True
+            except InvalidSpecifier:
+                continue
+        return False
 
     def get_all_versions(self, name: str) -> List[Version]:
         """Get all available versions.
@@ -155,7 +186,7 @@ class PyPIPackageRepository(IPackageRepository):
 
                 if response.status_code == 429:
                     # Rate limited - exponential backoff
-                    wait_time = 2 ** attempt
+                    wait_time = 2**attempt
                     time.sleep(wait_time)
                     continue
 
@@ -164,15 +195,17 @@ class PyPIPackageRepository(IPackageRepository):
 
             except requests.exceptions.Timeout as e:
                 if attempt == self._max_retries - 1:
-                    raise RepositoryError(f"Timeout fetching {name}: {e}")
-                time.sleep(2 ** attempt)
+                    raise RepositoryError(f"Timeout fetching {name}: {e}") from e
+                time.sleep(2**attempt)
 
             except requests.exceptions.RequestException as e:
                 if attempt == self._max_retries - 1:
-                    raise RepositoryError(f"Failed to fetch {name}: {e}")
-                time.sleep(2 ** attempt)
+                    raise RepositoryError(f"Failed to fetch {name}: {e}") from e
+                time.sleep(2**attempt)
 
-        raise RepositoryError(f"Failed to fetch {name} after {self._max_retries} attempts")
+        raise RepositoryError(
+            f"Failed to fetch {name} after {self._max_retries} attempts"
+        )
 
     def _parse_package(self, data: dict) -> Package:
         """Parse PyPI JSON response into domain entity.

@@ -111,3 +111,12 @@ class Environment:
     def get_version(self, name: str) -> Optional[Version]:
         """Get installed version of a package."""
         return self.packages.get(name.lower())
+
+
+@dataclass(frozen=True)
+class InstalledDistribution:
+    """Installed distribution metadata needed for environment validation."""
+
+    name: str
+    version: Version
+    requirements: List[str] = field(default_factory=list)

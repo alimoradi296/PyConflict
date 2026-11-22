@@ -1,10 +1,7 @@
 """Use case for checking if a package can be added safely."""
 
-import sys
 from dataclasses import dataclass
 from typing import List, Optional
-
-from packaging.version import Version
 
 from pyconflict.domain.entities import Conflict, Environment, Package
 from pyconflict.domain.repositories import IEnvironmentRepository, IPackageRepository
@@ -81,10 +78,14 @@ class CheckAddPackageUseCase:
         # 4. Generate suggestions if conflicts found
         suggestions = []
         if conflicts:
-            suggestions = self._suggestion_generator.generate(package, conflicts, environment)
+            suggestions = self._suggestion_generator.generate(
+                package, conflicts, environment
+            )
 
         # 5. Calculate confidence score
-        confidence = self._calculate_confidence(package, environment, request.check_deep)
+        confidence = self._calculate_confidence(
+            package, environment, request.check_deep
+        )
 
         # 6. Generate caveats
         caveats = self._get_caveats(request)
@@ -115,10 +116,7 @@ class CheckAddPackageUseCase:
     ) -> float:
         """Calculate confidence in the result.
 
-        Confidence is based on what was checked:
-        - Direct dependencies only: 90%
-        - With platform markers: 85%
-        - With transitive deps: 80%
+        The returned value is a heuristic score, not a measured accuracy rate.
 
         Args:
             package: The package being checked
@@ -128,12 +126,7 @@ class CheckAddPackageUseCase:
         Returns:
             Confidence score between 0.0 and 1.0
         """
-        confidence = 0.90  # MVP: Direct dependencies only
-
-        # Phase 2: Account for platform markers
-        # has_platform_markers = any(dep.markers for dep in package.dependencies)
-        # if has_platform_markers:
-        #     confidence *= 0.95
+        confidence = 0.90
 
         # Phase 3: Account for transitive dependencies
         if check_deep:
@@ -152,9 +145,8 @@ class CheckAddPackageUseCase:
         """
         caveats = []
 
-        # MVP limitations
+        # Current limitations
         caveats.append("Only direct dependencies checked (not transitive)")
-        caveats.append("Platform-specific markers not evaluated")
         caveats.append("Optional extras not included")
 
         # Add more specific caveats

@@ -152,8 +152,8 @@ def test_get_latest_stable_package_not_found():
     request = GetLatestStableRequest(package_name="nonexistent")
 
     try:
-        response = use_case.execute(request)
-        assert False, "Should have raised RepositoryError"
+        use_case.execute(request)
+        raise AssertionError("Should have raised RepositoryError")
     except Exception as e:
         from pyconflict.application.exceptions import RepositoryError
 

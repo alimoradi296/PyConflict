@@ -5,6 +5,7 @@ from pathlib import Path
 from platformdirs import user_cache_dir
 
 from pyconflict.application.use_cases.check_add_package import CheckAddPackageUseCase
+from pyconflict.application.use_cases.check_environment import CheckEnvironmentUseCase
 from pyconflict.application.use_cases.get_latest_stable import GetLatestStableUseCase
 from pyconflict.domain.services.conflict_detector import ConflictDetector
 from pyconflict.domain.services.suggestion_generator import SuggestionGenerator
@@ -93,6 +94,12 @@ class Container:
         """Get get-latest-stable use case instance."""
         return GetLatestStableUseCase(package_repo=self.package_repository())
 
+    def check_environment_use_case(self) -> CheckEnvironmentUseCase:
+        """Get the environment-check use case."""
+        return CheckEnvironmentUseCase(
+            environment_repository=self.environment_repository()
+        )
+
 
 # Global container instance
 _container = Container()
@@ -106,3 +113,13 @@ def get_check_add_package_use_case() -> CheckAddPackageUseCase:
 def get_latest_stable_use_case() -> GetLatestStableUseCase:
     """Get the get-latest-stable use case."""
     return _container.get_latest_stable_use_case()
+
+
+def get_check_environment_use_case() -> CheckEnvironmentUseCase:
+    """Get the environment-check use case."""
+    return _container.check_environment_use_case()
+
+
+def get_environment_repository() -> PipEnvironmentRepository:
+    """Get the current Python environment repository."""
+    return _container.environment_repository()

@@ -215,3 +215,75 @@ def test_conflict_includes_package_info():
     conflict = conflicts[0]
     assert "mypackage==2.0.0" in conflict.required_by
     assert conflict.dependency_name == "somedep"
+
+
+def test_marker_skips_dependency_for_other_python_versions():
+    detector = ConflictDetector(VersionResolver())
+    package = Package(
+        name="example",
+        version=Version("1.0.0"),
+        dependencies=[
+            Dependency(
+                name="conditional-dep",
+                specifier=SpecifierSet("<2"),
+                markers="python_version < '3.10'",
+            )
+        ],
+    )
+    environment = Environment(
+        packages={"conditional-dep": Version("3.0.0")},
+        python_version=Version("3.11.0"),
+        platform="linux",
+    )
+
+    assert detector.detect_conflicts(package, environment) == []
+
+
+def test_marker_checks_dependency_for_matching_python_version():
+    detector = ConflictDetector(VersionResolver())
+    package = Package(
+        name="example",
+        version=Version("1.0.0"),
+        dependencies=[
+            Dependency(
+                name="conditional-dep",
+                specifier=SpecifierSet("<2"),
+                markers="python_version >= '3.10'",
+            )
+        ],
+    )
+    environment = Environment(
+        packages={"conditional-dep": Version("3.0.0")},
+        python_version=Version("3.11.0"),
+        platform="linux",
+    )
+
+    conflicts = detector.detect_conflicts(package, environment)
+
+    assert len(conflicts) == 1
+    assert conflicts[0].dependency_name == "conditional-dep"
+
+
+def test_marker_uses_target_platform_system():
+    detector = ConflictDetector(VersionResolver())
+    package = Package(
+        name="example",
+        version=Version("1.0.0"),
+        dependencies=[
+            Dependency(
+                name="windows-only-dep",
+                specifier=SpecifierSet("<2"),
+                markers="platform_system == 'Windows'",
+            )
+        ],
+    )
+    environment = Environment(
+        packages={"windows-only-dep": Version("3.0.0")},
+        python_version=Version("3.11.0"),
+        platform="win32",
+    )
+
+    conflicts = detector.detect_conflicts(package, environment)
+
+    assert len(conflicts) == 1
+    assert conflicts[0].dependency_name == "windows-only-dep"
