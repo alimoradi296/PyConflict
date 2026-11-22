@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [ main, develop ]
+    tags: ["v*"]
   pull_request:
     branches: [ main, develop ]
 
@@ -215,3 +216,33 @@ jobs:
       with:
         name: dist
         path: dist/
+
+  publish:
+    name: Publish to PyPI with Trusted Publishing
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - test
+      - integration
+      - mcp
+      - redis-integration
+      - vscode-extension
+      - lint
+      - security
+      - build
+    runs-on: ubuntu-22.04
+    environment:
+      name: pypi
+      url: https://pypi.org/project/pyconflict/
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+    - name: Download distributions
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - name: Publish distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

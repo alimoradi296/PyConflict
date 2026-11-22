@@ -62,7 +62,9 @@ because Python 3.8-compatible setuptools rejects the SPDX string form introduced
 version 77. This bounds the backend to a version that accepts the current MIT license
 metadata without emitting the new deprecation warning. The MCP package uses SPDX
 metadata and setuptools 77+ because it requires Python 3.11+. Python 3.8 execution
-still needs confirmation in CI. PyPI publication is still pending.
+still needs confirmation in CI. CI now has a tag-triggered OIDC publishing job that
+runs only after all release checks pass. Register the pending publisher for workflow
+`ci.yml` and GitHub environment `pypi`, then create the `v2.0.0` tag to publish.
 
 ## Historical planning
 
