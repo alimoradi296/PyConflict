@@ -14,18 +14,24 @@ a VS Code extension source package, and an opt-in Redis team baseline.
 - Optional extras are not included in `check-add`.
 - `batch-check` accepts package names and exact `==` pins; it rejects ranges, extras, and markers.
 - Private package indexes are not supported.
-- Integrations have build and unit coverage, but host-level acceptance is still needed for Cursor,
-  VS Code, MCP stdio startup, and a real Redis service.
+- The MCP server passed a real stdio handshake and tool-discovery check; this check now runs in CI.
+- The Redis adapter passed a real-service round trip, TTL, workspace-isolation, and clear check;
+  CI starts a Redis service for the same acceptance test.
+- The VS Code extension was installed in an isolated profile and activated in an Extension
+  Development Host against a clean workspace containing `requirements.txt`.
+- The Cursor rules were copied into a clean sample project and its PyConflict CLI command was
+  verified. Cursor IDE rule loading could not be checked because this host has no Cursor IDE.
 - Accuracy has not been measured. PyConflict does not publish a confidence score.
 
 ## Next work
 
 ### 1. Complete integration acceptance
 
-- Add an MCP stdio client/server test to CI.
-- Exercise the Redis adapter against a disposable Redis service.
-- Install and activate the VS Code extension in an Extension Development Host.
-- Follow the Cursor setup guide in a clean sample project.
+- [x] Add an MCP stdio client/server test to CI and verify local startup and tool discovery.
+- [x] Exercise the Redis adapter against a disposable Redis service locally and in CI.
+- [x] Install and activate the VS Code extension in an Extension Development Host.
+- [x] Follow the Cursor setup steps in a clean sample project; verify Cursor IDE rule loading on a
+  host with Cursor installed.
 
 ### 2. Resolve transitive dependencies
 
@@ -51,8 +57,10 @@ credentials in command output, cache keys, logs, or checked-in configuration exa
 Before publishing a version, update the changelog, verify the package metadata and
 wheel, run the full CI suite, test the documented installation flow, and confirm the
 release version is available from the intended package index. A merge or successful
-CI run alone does not indicate publication. Resolve the current setuptools license
-metadata deprecation warnings while preserving the Python 3.8 build matrix.
+CI run alone does not indicate publication. The license metadata now uses the SPDX
+string form without raising the setuptools build requirement, preserving Python 3.8
+compatibility. Python 3.8 execution still needs confirmation in CI because it is not
+installed on this host. PyPI publication is still pending.
 
 ## Historical planning
 
