@@ -25,7 +25,13 @@ This file records changes confirmed in the repository. It does not claim that a 
 - Optional dependency metadata uses the valid PEP 621 table structure.
 
 ### Verification
-- 45 unit tests, 7 offline MCP tests, and 42 PyPI integration tests passed locally.
+- 45 core unit tests and 8 MCP tests including a real stdio handshake passed locally; 42 PyPI integration tests and one live Redis service test also passed locally.
+- The Redis adapter passed a live Redis service check for round trips, TTL, workspace isolation, and clearing.
+- VS Code 2.0.0 was packaged, installed in an isolated profile, and activated in an Extension Development Host.
+- The release wheel and its dependencies were installed in a clean sample project's virtual environment, and the Cursor rules and CLI command were checked there. Cursor IDE rule loading remains unverified because the IDE is not installed on the host.
 - Black, Ruff, and mypy passed.
 - The VS Code extension type check and VSIX packaging passed; npm audit found no vulnerabilities.
-- Core and MCP wheels built locally. No package release was made.
+- Core wheel and source distribution, plus the MCP wheel, built locally. The core wheel installed and its metadata reports `Requires-Python: >=3.8` and `License: MIT`.
+- The core build pins setuptools below 77 to avoid the PEP 639 warning on the supported Python 3.8 build path; the MCP package uses the SPDX form on its Python 3.11+ build path.
+- Twine validation passed for the core wheel and source distribution.
+- No PyPI release was made.

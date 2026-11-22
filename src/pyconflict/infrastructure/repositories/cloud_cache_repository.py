@@ -39,7 +39,7 @@ class CloudCacheRepository(ICacheRepository):
         if ttl <= 0:
             raise ValueError("ttl must be greater than zero")
         serialized = json.dumps(value)
-        self.redis_client.setex(self._namespace_key(key), ttl, serialized)
+        self.redis_client.set(self._namespace_key(key), serialized, ex=ttl)
 
     def clear(self) -> None:
         pattern = self._namespace_key("*")

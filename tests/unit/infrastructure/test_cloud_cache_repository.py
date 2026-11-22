@@ -17,9 +17,9 @@ class FakeRedisClient:
     def get(self, key):
         return self.values.get(key)
 
-    def setex(self, key, ttl, value):
+    def set(self, key, value, ex):
         self.values[key] = value
-        self.ttls[key] = ttl
+        self.ttls[key] = ex
 
     def scan_iter(self, match):
         prefix = match[:-1] if match.endswith("*") else match
