@@ -7,9 +7,11 @@ from packaging.specifiers import SpecifierSet
 from packaging.version import Version
 from typer.testing import CliRunner
 
+from pyconflict.application.use_cases.check_add_package import CheckAddPackageResponse
 from pyconflict.application.use_cases.check_environment import CheckEnvironmentResponse
-from pyconflict.domain.entities import Conflict, ConflictSeverity
+from pyconflict.domain.entities import Conflict, ConflictSeverity, Package
 from pyconflict.presentation.cli import commands
+from pyconflict.presentation.cli.formatters import JSONFormatter
 
 runner = CliRunner()
 
@@ -69,3 +71,26 @@ def test_team_check_exposes_explicit_baseline_save_option():
     assert result.exit_code == 0
     assert "--set-standard" in help_text
     assert "PYCONFLICT_WORKSPACE_ID" in help_text
+
+
+def test_check_add_does_not_advertise_unimplemented_deep_option():
+    result = runner.invoke(commands.app, ["check-add", "--help"])
+    help_text = re.sub(r"\x1b\[[0-9;]*m", "", result.stdout)
+
+    assert result.exit_code == 0
+    assert "--deep" not in help_text
+
+
+def test_check_add_json_does_not_emit_uncalibrated_confidence():
+    response = CheckAddPackageResponse(
+        safe_to_add=True,
+        package=Package(name="demo", version=Version("1.0"), dependencies=[]),
+        conflicts=[],
+        suggestions=[],
+        caveats=["Only direct dependencies checked (not transitive)"],
+    )
+
+    payload = json.loads(JSONFormatter.format_check_add(response))
+
+    assert payload["status"] == "safe"
+    assert "confidence" not in payload

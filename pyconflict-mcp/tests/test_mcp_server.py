@@ -20,7 +20,7 @@ async def test_list_tools_exposes_expected_operations():
 
 
 @pytest.mark.asyncio
-async def test_check_package_passes_cli_result_without_fabricating_confidence(monkeypatch):
+async def test_check_package_preserves_cli_result_without_adding_confidence(monkeypatch):
     calls = []
 
     async def fake_run(args):
@@ -38,7 +38,7 @@ async def test_check_package_passes_cli_result_without_fabricating_confidence(mo
 
     assert calls == [["check-add", "django", "--json", "--version", "5.0"]]
     assert result["safe"] is True
-    assert result["confidence"] is None
+    assert "confidence" not in result
 
 
 @pytest.mark.asyncio

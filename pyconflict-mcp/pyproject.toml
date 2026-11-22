@@ -43,7 +43,7 @@ pyconflict-mcp = "pyconflict_mcp.server:main"
 
 [project.urls]
 Homepage = "https://github.com/alimoradi296/PyConflict"
-Documentation = "https://pyconflict.readthedocs.io"
+Documentation = "https://github.com/alimoradi296/PyConflict/tree/main/pyconflict-mcp"
 Repository = "https://github.com/alimoradi296/PyConflict"
 
 [tool.setuptools.packages.find]

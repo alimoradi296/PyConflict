@@ -14,15 +14,18 @@ This file records changes confirmed in the repository. It does not claim that a 
 
 ### Changed
 - The CLI version is read from package metadata.
-- The confidence value is documented as a heuristic, not a measured accuracy rate.
+- `check-add` no longer reports an uncalibrated confidence score.
 
 ### Fixed
 - `check-env` no longer reports a clean environment without checking dependencies.
 - `batch-check` rejects unsupported ranges, extras, and markers.
+- The unsupported `check-add --deep` option and its misleading confidence adjustment were removed.
+- Conflict suggestions now compare installed versions with parsed constraint bounds.
 - Package and CLI versions are aligned at `2.0.0`.
 - Optional dependency metadata uses the valid PEP 621 table structure.
 
 ### Verification
-- 40 unit tests, 7 offline MCP tests, and 42 PyPI integration tests passed in local runs.
-- The VS Code extension TypeScript check passed. VSIX packaging is being verified.
-- Integration tests require network access to PyPI. The local environment emitted a Requests dependency warning.
+- 45 unit tests, 7 offline MCP tests, and 42 PyPI integration tests passed locally.
+- Black, Ruff, and mypy passed.
+- The VS Code extension type check and VSIX packaging passed; npm audit found no vulnerabilities.
+- Core and MCP wheels built locally. No package release was made.

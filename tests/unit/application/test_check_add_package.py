@@ -124,7 +124,6 @@ def test_check_add_package_no_conflicts():
     assert response.safe_to_add is True
     assert len(response.conflicts) == 0
     assert response.package.name == "requests"
-    assert response.confidence > 0.8
 
 
 def test_check_add_package_with_conflict():
@@ -261,7 +260,7 @@ def test_check_add_package_caveats():
     )
 
     # Execute
-    request = CheckAddPackageRequest(package_name="requests", check_deep=False)
+    request = CheckAddPackageRequest(package_name="requests")
     response = use_case.execute(request)
 
     # Assert

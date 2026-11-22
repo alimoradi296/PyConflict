@@ -101,7 +101,6 @@ async def check_package(input_data: CheckPackageInput) -> Dict[str, Any]:
         "package": result.get("package", {}),
         "conflicts": result.get("conflicts", []),
         "suggestions": result.get("suggestions", []),
-        "confidence": result.get("confidence"),
         "caveats": result.get("caveats", []),
         "error": result.get("error"),
     }

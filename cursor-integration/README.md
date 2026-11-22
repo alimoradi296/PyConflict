@@ -11,7 +11,7 @@ This integration enables Cursor to automatically check Python dependencies befor
 ### Step 1: Install PyConflict
 
 ```bash
-pip install "pyconflict>=2.0.0"
+python -m pip install "git+https://github.com/alimoradi296/PyConflict.git"
 ```
 
 ### Step 2: Copy Rules to Your Project
@@ -122,14 +122,14 @@ pyconflict check-add django --version 3.2 --json
 
 Conflicts:
   • asgiref
-    Required: >=3.3.2,<4
-    Installed: 3.7.2
+    Required: <4,>=3.3.2
+    Installed: 3.2.0
     Required by: django==3.2
 
 Suggestions:
-  → Upgrade django to 4.2+ (compatible with your current packages)
+  → Upgrade 'asgiref' from 3.2.0 to satisfy django's requirement (<4,>=3.3.2)
 
-Would you like me to try django==4.2 instead?
+Would you like me to check for a compatible asgiref version?
 ```
 
 ### Example 3: Multiple Packages
@@ -261,7 +261,7 @@ Add to GitHub Actions:
 # .github/workflows/dependencies.yml
 - name: Check dependencies
   run: |
-    pip install pyconflict
+    python -m pip install "git+https://github.com/alimoradi296/PyConflict.git"
     pyconflict check-env --json
 ```
 
@@ -294,14 +294,14 @@ Cursor: ./scripts/safe-add.sh fastapi
 
 ## Best Practices
 
-1. **Always use latest PyConflict**
+1. **Install the current source version**
    ```bash
-   pip install --upgrade pyconflict
+   python -m pip install --upgrade "git+https://github.com/alimoradi296/PyConflict.git"
    ```
 
 2. **Review conflicts before overriding**
-   - Treat the confidence value as a heuristic, not a measured accuracy probability.
-   - Review caveats and resolve uncertain results before changing dependencies.
+   - Review conflicts and caveats before changing dependency files.
+   - PyConflict checks direct dependencies; it does not resolve the full dependency graph.
 
 3. **Use batch checks for multiple packages**
    - More efficient than one-by-one
@@ -325,7 +325,7 @@ See [example-usage.md](example-usage.md) for real-world scenarios.
 
 - **PyConflict**: https://github.com/alimoradi296/PyConflict
 - **Cursor**: https://cursor.sh
-- **Documentation**: https://pyconflict.readthedocs.io
+- **Documentation**: https://github.com/alimoradi296/PyConflict#readme
 - **Issues**: https://github.com/alimoradi296/PyConflict/issues
 
 ## Support

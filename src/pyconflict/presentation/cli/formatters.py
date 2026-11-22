@@ -31,7 +31,6 @@ class HumanFormatter:
             lines.append(
                 f"[green]✓[/green] Safe to add {response.package.name}=={response.package.version}"
             )
-            lines.append(f"  Confidence: {response.confidence * 100:.0f}%")
         else:
             lines.append(
                 f"[red]✗[/red] Cannot add {response.package.name}=={response.package.version}"
@@ -109,7 +108,6 @@ class JSONFormatter:
                 for c in response.conflicts
             ],
             "suggestions": response.suggestions,
-            "confidence": response.confidence,
             "caveats": response.caveats,
         }
 
