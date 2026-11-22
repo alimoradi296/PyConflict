@@ -57,10 +57,12 @@ credentials in command output, cache keys, logs, or checked-in configuration exa
 Before publishing a version, update the changelog, verify the package metadata and
 wheel, run the full CI suite, test the documented installation flow, and confirm the
 release version is available from the intended package index. A merge or successful
-CI run alone does not indicate publication. The license metadata now uses the SPDX
-string form without raising the setuptools build requirement, preserving Python 3.8
-compatibility. Python 3.8 execution still needs confirmation in CI because it is not
-installed on this host. PyPI publication is still pending.
+CI run alone does not indicate publication. The core build uses setuptools `<77`
+because Python 3.8-compatible setuptools rejects the SPDX string form introduced in
+version 77. This bounds the backend to a version that accepts the current MIT license
+metadata without emitting the new deprecation warning. The MCP package uses SPDX
+metadata and setuptools 77+ because it requires Python 3.11+. Python 3.8 execution
+still needs confirmation in CI. PyPI publication is still pending.
 
 ## Historical planning
 

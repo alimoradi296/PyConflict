@@ -103,7 +103,7 @@ jobs:
     - name: Exercise Redis adapter
       env:
         PYCONFLICT_REDIS_URL: redis://127.0.0.1:6379/15
-      run: pytest tests/integration/test_redis_service.py -q
+      run: pytest tests/integration/test_redis_service.py -q -m redis
 
   vscode-extension:
     name: VS Code Extension Build

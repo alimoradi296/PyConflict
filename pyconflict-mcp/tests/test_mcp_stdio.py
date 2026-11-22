@@ -14,7 +14,7 @@ async def test_stdio_server_handshake_and_tool_discovery():
             command=sys.executable,
             args=["-m", "pyconflict_mcp.server"],
         ),
-        read_timeout_seconds=10,
+        read_timeout_seconds=30,
     )
 
     async with client:

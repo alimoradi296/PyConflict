@@ -8,7 +8,7 @@ import pytest
 from pyconflict.infrastructure.repositories.cloud_cache_repository import CloudCacheRepository
 
 
-@pytest.mark.integration
+@pytest.mark.redis
 def test_cloud_cache_round_trip_isolated_and_clearable():
     redis = pytest.importorskip("redis")
     redis_url = os.environ.get("PYCONFLICT_REDIS_URL", "redis://127.0.0.1:6379/15")
