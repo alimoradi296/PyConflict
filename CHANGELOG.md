@@ -34,4 +34,5 @@ This file records changes confirmed in the repository. It does not claim that a 
 - Core wheel and source distribution, plus the MCP wheel, built locally. The core wheel installed and its metadata reports `Requires-Python: >=3.8` and `License: MIT`.
 - The core build pins setuptools below 77 to avoid the PEP 639 warning on the supported Python 3.8 build path; the MCP package uses the SPDX form on its Python 3.11+ build path.
 - Twine validation passed for the core wheel and source distribution.
+- A tag-triggered GitHub Actions job is configured for PyPI Trusted Publishing; the pending publisher and release tag are not yet configured.
 - No PyPI release was made.
